@@ -1,15 +1,20 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import UserContext from '../context/UserContext'
 
 
 function Navbar () {
 
     const navigate = useNavigate()
 
+    const {user} = useContext(UserContext)
+
+
     return (
         <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
             <div className="flex-1">
-                <a className="btn btn-ghost text-xl">Shopify</a>
+                <NavLink to="/products" className="btn btn-ghost text-xl">Shopify</NavLink>
+                {user && <span className='ml-4'>Welcome, {user.name.firstname}</span>}
             </div>
             <div className="flex-none">
                 <div className="dropdown dropdown-end">
@@ -26,7 +31,7 @@ function Navbar () {
                             <span className="text-lg font-bold">8 Items</span>
                             <span className="text-info">Subtotal: $999</span>
                             <div className="card-actions">
-                                <button className="btn btn-primary btn-block">View cart</button>
+                                <NavLink to="/cart" className="btn btn-primary btn-block">View cart</NavLink>
                             </div>
                         </div>
                     </div>
@@ -43,12 +48,14 @@ function Navbar () {
                         tabIndex={0}
                         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                         <li>
-                            <a className="justify-between">
+                            <NavLink to="/profile" className="justify-between">
                                 Profile
                                 <span className="badge">New</span>
-                            </a>
+                            </NavLink>
                         </li>
                         <li><NavLink to="/products">Home</NavLink></li>
+                        <li><NavLink to="/allUsers">Users</NavLink></li>
+                        <li><NavLink to="/allCarts">All Carts</NavLink></li>
                         <li><NavLink to="/">Logout</NavLink></li>
                     </ul>
                 </div>

@@ -1,67 +1,86 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import UserContext from '../../context/UserContext'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 function SingleCart() {
+  const navigate = useNavigate()
+  const { user } = useContext(UserContext)
 
-    const api = `https://fakestoreapi.com/carts/${id}`
+  const [cart, setCart] = useState(null)
+  const [allProducts, setAllProducts] = useState([])
 
+  const fetchCartItems = async () => {
+    if (!user?.id) return
+    try {
+      const res = await axios.get(`https://fakestoreapi.com/carts/${user.id}`)
+      setCart(res.data)
+    } catch (error) {
+      console.error("Error fetching cart items:", error)
+      navigate("/")
+    }
+  }
+
+  const fetchAllProducts = async () => {
+    try {
+      const res = await axios.get('https://fakestoreapi.com/products')
+      setAllProducts(res.data)
+    } catch (error) {
+      console.error("Error fetching products:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCartItems()
+    fetchAllProducts()
+  }, [user])
 
   return (
-    <ul className="list bg-base-100 rounded-box shadow-md">
-  
-  <li className="p-4 pb-2 text-xs opacity-60 tracking-wide">Most played songs this week</li>
-  
-  <li className="list-row">
-    <div><img className="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/1@94.webp"/></div>
-    <div>
-      <div>Dio Lupa</div>
-      <div className="text-xs uppercase font-semibold opacity-60">Remaining Reason</div>
+    <div className="p-4 md:p-6">
+      {cart ? (
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 ">
+          <h2 className="text-xl font-semibold mb-4 text-center">Your Cart</h2>
+
+          <div className="flex flex-wrap gap-4 justify-center">
+            {cart.products.map((item) => {
+              const product = allProducts.find(p => p.id === item.productId)
+              if (!product) return null
+
+              return (
+                <div
+                  key={item.productId}
+                  className="flex flex-col items-center w-35 md:w-35 p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className="w-24 h-24 object-contain mb-2"
+                  />
+                  <h3 className="font-medium text-center text-[10px] md:text-base">{product.title}</h3>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Quantity: {item.quantity}
+                  </p>
+                  <p className="text-green-500 font-semibold mt-1">
+                    ${(product.price * item.quantity).toFixed(2)}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="mt-6 text-right font-semibold text-gray-800">
+            Total Items: {cart.products.reduce((total, item) => total + item.quantity, 0)}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 text-center">
+          <h2 className="text-lg font-semibold mb-2">Your Cart is Empty</h2>
+          <p className="text-gray-500 text-sm">
+            Add some products to your cart to see them here.
+          </p>
+        </div>
+      )}
     </div>
-    <p className="list-col-wrap text-xs">
-      "Remaining Reason" became an instant hit, praised for its haunting sound and emotional depth. A viral performance brought it widespread recognition, making it one of Dio Lupa’s most iconic tracks.
-    </p>
-    <button className="btn btn-square btn-ghost">
-      <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor"><path d="M6 3L20 12 6 21 6 3z"></path></g></svg>
-    </button>
-    <button className="btn btn-square btn-ghost">
-      <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></g></svg>
-    </button>
-  </li>
-  
-  <li className="list-row">
-    <div><img className="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/4@94.webp"/></div>
-    <div>
-      <div>Ellie Beilish</div>
-      <div className="text-xs uppercase font-semibold opacity-60">Bears of a fever</div>
-    </div>
-    <p className="list-col-wrap text-xs">
-      "Bears of a Fever" captivated audiences with its intense energy and mysterious lyrics. Its popularity skyrocketed after fans shared it widely online, earning Ellie critical acclaim.
-    </p>
-    <button className="btn btn-square btn-ghost">
-      <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor"><path d="M6 3L20 12 6 21 6 3z"></path></g></svg>
-    </button>
-    <button className="btn btn-square btn-ghost">
-      <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></g></svg>
-    </button>
-  </li>
-  
-  <li className="list-row">
-    <div><img className="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/3@94.webp"/></div>
-    <div>
-      <div>Sabrino Gardener</div>
-      <div className="text-xs uppercase font-semibold opacity-60">Cappuccino</div>
-    </div>
-    <p className="list-col-wrap text-xs">
-      "Cappuccino" quickly gained attention for its smooth melody and relatable themes. The song’s success propelled Sabrino into the spotlight, solidifying their status as a rising star.
-    </p>
-    <button className="btn btn-square btn-ghost">
-      <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor"><path d="M6 3L20 12 6 21 6 3z"></path></g></svg>
-    </button>
-    <button className="btn btn-square btn-ghost">
-      <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></g></svg>
-    </button>
-  </li>
-  
-</ul>
   )
 }
 

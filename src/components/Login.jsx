@@ -1,8 +1,11 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import UserContext from "../context/UserContext.jsx"
 
 function Login() {
+
+    const {user, setUser} = useContext(UserContext)
 
     const [username, setUsername] = useState('mor_2314')
     const [password, setPassword] = useState('83r5^_')
@@ -17,7 +20,20 @@ function Login() {
             setLoading(true)
             const res = await axios.post('https://fakestoreapi.com/auth/login', { username, password })
 
-            navigate("/products")
+
+            // fetching all users and match current user
+            const userRes = await axios.get("https://fakestoreapi.com/users")
+            const currentUser = userRes.data.find((user) => user.username === username)
+
+            if(currentUser) {
+                setUser(currentUser)
+                navigate("/products")
+            } else {
+                setError(true)
+                setErrorMessage("User not found")
+                return
+            }
+            
             
         } catch (error) {
             setError(true)

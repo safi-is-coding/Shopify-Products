@@ -51,7 +51,7 @@ function AllUsers() {
                     className="btn btn-outline btn-sm sm: p-5"
                     onClick={() => setSelectedUser(user)}
                   >
-                    Show Full Address
+                    Show
                   </button>
                 </td>
               </tr>
